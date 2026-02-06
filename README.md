@@ -112,9 +112,13 @@ docker compose down
 
 ### 1. Start Oracle and WireMock containers only
 
+For local development, use the dedicated dev compose file that excludes the Spring Boot app:
+
 ```bash
-docker compose up -d oracle wiremock
+docker compose -f docker-compose.dev.yml up -d
 ```
+
+This allows you to run the Spring Boot application in your IDE for easier debugging.
 
 ### 2. Build and run the Spring Boot application locally
 
