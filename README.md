@@ -47,10 +47,23 @@ This is a Spring Boot application configured to run with Oracle Database and Wir
 
 ## Quick Start
 
-### 1. Start all services with Docker Compose
+### Option 1: Using the Quick Start Script (Recommended)
 
 ```bash
-docker-compose up -d
+./start.sh
+```
+
+This script will:
+- Check if Docker is running
+- Stop any existing containers
+- Start all services (Oracle, WireMock, Spring Boot)
+- Wait for all services to be healthy
+- Display service URLs and useful commands
+
+### Option 2: Manual Docker Compose
+
+```bash
+docker compose up -d
 ```
 
 This will start:
@@ -61,19 +74,19 @@ This will start:
 ### 2. Check service status
 
 ```bash
-docker-compose ps
+docker compose ps
 ```
 
 ### 3. View logs
 
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f springboot-app
-docker-compose logs -f oracle
-docker-compose logs -f wiremock
+docker compose logs -f springboot-app
+docker compose logs -f oracle
+docker compose logs -f wiremock
 ```
 
 ### 4. Test the application
@@ -92,7 +105,7 @@ curl http://localhost:8080/api/health
 ### 5. Stop services
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## Local Development (without Docker)
@@ -100,7 +113,7 @@ docker-compose down
 ### 1. Start Oracle and WireMock containers only
 
 ```bash
-docker-compose up -d oracle wiremock
+docker compose up -d oracle wiremock
 ```
 
 ### 2. Build and run the Spring Boot application locally
@@ -217,12 +230,12 @@ docker exec -it oracle-db sqlplus appuser/apppass123@//localhost:1521/appdb
 Remove all containers, volumes, and networks:
 
 ```bash
-docker-compose down -v
+docker compose down -v
 ```
 
 ## Notes
 
-- **Spring Boot Version**: This project uses Spring Boot 3.2.2 (latest stable version, as Spring Boot 4 is not yet released)
+- **Spring Boot Version**: This project uses Spring Boot 3.2.2 (latest stable version). Note that "Spring Boot 4" mentioned in the requirements is not yet released - Spring Boot 3.x is the current major version as of 2024. When Spring Boot 4 is officially released, the pom.xml can be updated to use that version.
 - **Java Version**: Java 17 is required
 - **Oracle Database**: Uses Oracle Free Edition (lightweight version)
 - **First Start**: Oracle database initialization can take 1-2 minutes on first start
