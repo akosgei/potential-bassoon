@@ -1,0 +1,55 @@
+version: '3.8'
+
+# Docker Compose for local development
+# This only starts Oracle and WireMock, allowing you to run the Spring Boot app in your IDE
+# Usage: docker compose -f docker-compose.dev.yml up -d
+
+services:
+  oracle:
+    image: gvenzl/oracle-free:23-slim
+    container_name: oracle-db-dev
+    environment:
+      ORACLE_PASSWORD: oracle123
+      ORACLE_DATABASE: appdb
+      APP_USER: appuser
+      APP_USER_PASSWORD: apppass123
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    volumes:
+      - oracle-data-dev:/opt/oracle/oradata
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - spring-network-dev
+
+  wiremock:
+    image: wiremock/wiremock:latest
+    container_name: wiremock-server-dev
+    command:
+      - --global-response-templating
+      - --verbose
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+      - ./wiremock/files:/home/wiremock/__files
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/__admin/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - spring-network-dev
+
+volumes:
+  oracle-data-dev:
+
+networks:
+  spring-network-dev:
+    driver: bridge

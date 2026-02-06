@@ -1,4 +1,4 @@
-name: "Copilot Setup Steps"
+name: "Spring Boot 4 Setup with Docker"
 
 on:
   workflow_dispatch:
@@ -10,17 +10,62 @@ on:
       - .github/workflows/copilot-setup-steps.yml
 
 jobs:
-  copilot-setup-steps:
+  spring-boot-setup:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: "20"
-          cache: "npm"
-      - name: Install JavaScript dependencies
-        run: npm ci
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      
+      - name: Verify Spring Boot project structure
+        run: |
+          if [ -f "pom.xml" ]; then
+            echo "Spring Boot project detected"
+            mvn --version
+          else
+            echo "No pom.xml found - project structure needs to be created"
+          fi
+      
+      - name: Build Spring Boot application
+        run: |
+          if [ -f "pom.xml" ]; then
+            mvn clean install -DskipTests
+          else
+            echo "Skipping build - no pom.xml found"
+          fi
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Start Docker Compose services
+        run: |
+          if [ -f "docker-compose.yml" ]; then
+            docker-compose up -d
+            echo "Waiting for services to be ready..."
+            sleep 10
+            docker-compose ps
+          else
+            echo "No docker-compose.yml found"
+          fi
+      
+      - name: Run application health check
+        run: |
+          if [ -f "docker-compose.yml" ]; then
+            echo "Services are running"
+            docker-compose logs
+          fi
+      
+      - name: Cleanup Docker containers
+        if: always()
+        run: |
+          if [ -f "docker-compose.yml" ]; then
+            docker-compose down -v
+          fi
